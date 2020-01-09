@@ -37,7 +37,7 @@ userConfig = {
 --                                                                                                --
 --               Welcome to this script. If you have any questions, please visit:                 --
 --                        https://github.com/kiccer/logitech-macro-frame                          --
---                      Please click star to support my project, thank you.                       --
+--                    Please click [★ Star] to support my project, thank you.                    --
 --                                                                                                --
 --||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||--
 
@@ -50,27 +50,34 @@ lmf = {
 
 -- 监听动作
 function lmf.on (k, f)
-	local index = #lmf.monitor + 1
+	local index = nil
 	local list = {
-		'mounted'
+		'load',
+		'unload',
+		'mousedown',
 	}
 
 	if table.some(list, function (n, i)
 		return n == k
 	end) then
-		lmf.monitor[index] = {
-			event = k,
-			handle = f
-		}
+		if lmf.monitor[k] and #lmf.monitor[k] > 0 then
+			index = #lmf.monitor[k] + 1
+			lmf.monitor[k][index] = f
+		else
+			index = 1
+			lmf.monitor[k] = { f }
+		end
 	end
 
-	return index
+	return index and {
+		event = k,
+		id = index
+	} or index
 end
 
 -- 取消监听
-function lmf.off (i)
-	-- lmf.monitor[i].handle = false
-	lmf.monitor[i] = false
+function lmf.off (n)
+	lmf.monitor[n.event][n.id] = false
 end
 
 --[[ tools ]]
@@ -106,6 +113,7 @@ function table.some (t, c)
 	end
 	return res
 end
+
 -- Javascript Array.prototype.every
 function table.every (t, c)
 	local res = true
@@ -137,6 +145,12 @@ function table.forEach (t, c)
 	for i = 1, #t do c(t[i], i) end
 end
 
+function table.createFill (n, v)
+	local res = {}
+	for i = 1, n do res[i] = v end
+	return res
+end
+
 --[[
 	* 打印 table
 	* @param  {any} val     传入值
@@ -164,17 +178,17 @@ function table.print (val)
 
 			if #val > 0 then
 				local index = 0
-				local inline = false
+				local block = false
 
 				for i = 1, #val do
 					local n = val[i]
-					if type(n) == "table" then
-						inline = true
+					if type(n) == "table" or type(n) == "function" then
+						block = true
 						break
 					end
 				end
 
-				if inline then
+				if block then
 					for i = 1, #val do
 						local n = val[i]
 						index = index + 1
@@ -241,33 +255,93 @@ function OnEvent (event, arg, family)
 
 	-- Script activated event
 	if event == "PROFILE_ACTIVATED" then
-		table.forEach(lmf.monitor, function (n, i)
-			-- if n.event == 'mounted' and n.handle then
-			if n and n.event == 'mounted' then
-				n.handle()
-			end
-		end)
+		if lmf.monitor.load and #lmf.monitor.load then
+			table.forEach(lmf.monitor.load, function (n, i)
+				if n then n() end
+			end)
+		end
 	end
 
 	-- Script deactivated event
 	if event == "PROFILE_DEACTIVATED" then
+		if lmf.monitor.unload and #lmf.monitor.unload then
+			table.forEach(lmf.monitor.unload, function (n, i)
+				if n then n() end
+			end)
+		end
 		ClearLog()
 	end
+
+	-- PRESSED event
+	local eObj = {
+		isMouse = nil,
+		target = nil,
+		buttons = {},
+		-- other = {},
+		modifier = {},
+	}
+	-- table.forEach(table.createFill(5, 'g'), function (n, i) eObj.mouse[n .. i] = false end)
+	-- table.forEach(table.createFill(12, 'g'), function (n, i) eObj.other[n .. i] = false end)
+
+	if event == "MOUSE_BUTTON_PRESSED" and arg >=1 and arg <= 11 and family == "mouse" then
+		eObj.isMouse = true
+		eObj.target = arg
+		local list = { "lalt", "lctrl", "lshift", "ralt", "rctrl", "rshift" }
+
+		for i = 1, 5 do
+			eObj.buttons[i] = IsMouseButtonPressed(i)
+		end
+
+		for i = 1, #list do
+			eObj.modifier[list[i]] = IsModifierPressed(list[i])
+		end
+
+		if lmf.monitor.mousedown and #lmf.monitor.mousedown then
+			table.forEach(lmf.monitor.mousedown, function (n, i)
+				if n then n(eObj) end
+			end)
+		end
+
+	elseif event == "G_PRESSED" and arg >=1 and arg <= 12 then
+		eObj.isMouse = false
+		eObj.target = arg
+		local list = { "lalt", "lctrl", "lshift", "ralt", "rctrl", "rshift" }
+
+		for i = 1, 5 do
+			eObj.buttons[i] = IsMouseButtonPressed(i)
+		end
+
+		for i = 1, #list do
+			eObj.modifier[list[i]] = IsModifierPressed(list[i])
+		end
+
+		if lmf.monitor.mousedown and #lmf.monitor.mousedown then
+			table.forEach(lmf.monitor.mousedown, function (n, i)
+				if n then n(eObj) end
+			end)
+		end
+
+	end
+
 end
 
 --||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||--
 --                                                                                                --
 --                                     从这里开始写你的代码                                         --
---                                                                                                --
 --                                Start writing your code here.                                   --
 --                                                                                                --
 --||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||--
 
 -- Execute when the script is loaded
-lmf.on('mounted', function ()
+lmf.on('load', function ()
 	console.log('hello world')
 end)
 
+lmf.on('mousedown', function (e)
+	console.log(e)
+end)
+
+-- console.log(lmf)
 
 
 
