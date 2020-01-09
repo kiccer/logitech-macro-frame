@@ -1,10 +1,7 @@
---||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||--
---                                                                                                --
+----------------------------------------------------------------------------------------------------
 --                                        使用者配置设置                                           --
---                                                                                                --
 --                                    User config settings                                        --
---                                                                                                --
---||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||--
+----------------------------------------------------------------------------------------------------
 
 userConfig = {
 
@@ -33,14 +30,7 @@ userConfig = {
 
 
 
-----------------------------------------------------------------------------------------------------
---
---
---
---
---
---
---
+
 --||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||--
 --                                                                                                --
 --                                   >> Logitech Macro Frame <<                                   --
@@ -51,19 +41,36 @@ userConfig = {
 --                                                                                                --
 --||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||--
 
-
 -------------------------------------- Framework built-in code -------------------------------------
 
 lmf = {
-	debug = true,
+	debug = false,
 	monitor = {} -- 监听器列表
 }
 
 -- 监听动作
-function lmf.on (k)
+function lmf.on (k, f)
 	local index = #lmf.monitor + 1
+	local list = {
+		'mounted'
+	}
+
+	if table.some(list, function (n, i)
+		return n == k
+	end) then
+		lmf.monitor[index] = {
+			event = k,
+			handle = f
+		}
+	end
 
 	return index
+end
+
+-- 取消监听
+function lmf.off (i)
+	-- lmf.monitor[i].handle = false
+	lmf.monitor[i] = false
 end
 
 --[[ tools ]]
@@ -85,6 +92,29 @@ function string.split (str, s)
 
 	res[index + 1] = string.sub(str, last_i)
 
+	return res
+end
+
+-- Javascript Array.prototype.some
+function table.some (t, c)
+	local res = false
+	for i = 1, #t do
+		if c(t[i], i) then
+			res = true
+			break
+		end
+	end
+	return res
+end
+-- Javascript Array.prototype.every
+function table.every (t, c)
+	local res = true
+	for i = 1, #t do
+		if not c(t[i], i) then
+			res = false
+			break
+		end
+	end
 	return res
 end
 
@@ -113,10 +143,8 @@ end
 	* @return {str}         格式化后的文本
 ]]
 function table.print (val)
-	if type(val) == "nil" then return type(val) end
 
 	local function loop (val, keyType, _indent)
-		if not val then return end
 		_indent = _indent or 1
 		keyType = keyType or "string"
 		local res = ""
@@ -125,7 +153,9 @@ function table.print (val)
 		local end_indent = string.rep(indentStr, _indent - 1)
 		local putline = function (...)
 			local arr = { res, ... }
-			for i = 1, #arr do arr[i] = tostring(arr[i]) end
+			for i = 1, #arr do
+				if type(arr[i]) ~= "string" then arr[i] = tostring(arr[i]) end
+			end
 			res = table.concat(arr)
 		end
 
@@ -134,16 +164,32 @@ function table.print (val)
 
 			if #val > 0 then
 				local index = 0
-				for k, v in pairs(val) do
-					index = index + 1
-					if type(v) == "table" then
-						if index == 1 then putline("\n") end
-						putline(indent, loop(v, type(k), _indent + 1), "\n")
-						if index == #val then putline(end_indent) end
-					else
-						putline(loop(v, type(k), _indent + 1))
+				local inline = false
+
+				for i = 1, #val do
+					local n = val[i]
+					if type(n) == "table" then
+						inline = true
+						break
 					end
 				end
+
+				if inline then
+					for i = 1, #val do
+						local n = val[i]
+						index = index + 1
+						if index == 1 then putline("\n") end
+						putline(indent, loop(n, type(i), _indent + 1), "\n")
+						if index == #val then putline(end_indent) end
+					end
+				else
+					for i = 1, #val do
+						local n = val[i]
+						index = index + 1
+						putline(loop(n, type(i), _indent + 1))
+					end
+				end
+
 			else
 				putline("\n")
 				for k, v in pairs(val) do
@@ -163,7 +209,7 @@ function table.print (val)
 			val = string.gsub(val, "\v", "\\v") -- 垂直指标(VT)
 			putline("\"", val, "\", ")
 		elseif type(val) == "boolean" then
-			putline((val and {"true"} or {"false"})[1], ", ")
+			putline(val and "true, " or "false, ")
 		elseif type(val) == "function" then
 			putline(tostring(val), ", ")
 		elseif type(val) == "nil" then
@@ -191,17 +237,24 @@ end
 
 --[[ 入口方法 ]]
 function OnEvent (event, arg, family)
-	console.log("event = " .. event .. ", arg = " .. arg .. ", family = " .. family)
+	-- console.log("event = " .. event .. ", arg = " .. arg .. ", family = " .. family)
+
+	-- Script activated event
+	if event == "PROFILE_ACTIVATED" then
+		table.forEach(lmf.monitor, function (n, i)
+			-- if n.event == 'mounted' and n.handle then
+			if n and n.event == 'mounted' then
+				n.handle()
+			end
+		end)
+	end
+
+	-- Script deactivated event
+	if event == "PROFILE_DEACTIVATED" then
+		ClearLog()
+	end
 end
 
-----------------------------------------------------------------------------------------------------
---
---
---
---
---
---
---
 --||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||--
 --                                                                                                --
 --                                     从这里开始写你的代码                                         --
@@ -210,10 +263,10 @@ end
 --                                                                                                --
 --||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||--
 
-
-
-
-
+-- Execute when the script is loaded
+lmf.on('mounted', function ()
+	console.log('hello world')
+end)
 
 
 
