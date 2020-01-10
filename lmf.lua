@@ -41,7 +41,9 @@ userConfig = {
 --                                                                                                --
 --||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||--
 
--------------------------------------- Framework built-in code -------------------------------------
+----------------------------------------------------------------------------------------------------
+--                                     Framework built-in code                                    --
+----------------------------------------------------------------------------------------------------
 
 lmf = {
 	debug = false,
@@ -78,6 +80,15 @@ end
 -- 取消监听
 function lmf.off (n)
 	lmf.monitor[n.event][n.id] = false
+end
+
+-- 触发监听事件
+function lmf.emit (k, d)
+	if lmf.monitor[k] and #lmf.monitor[k] then
+		table.forEach(lmf.monitor[k], function (n, i)
+			if n then n(d) end
+		end)
+	end
 end
 
 --[[ tools ]]
@@ -249,7 +260,10 @@ function console.log (str)
 	OutputLogMessage(table.print(str) .. "\n")
 end
 
---[[ 入口方法 ]]
+----------------------------------------------------------------------------------------------------
+--                                         Entry function                                         --
+----------------------------------------------------------------------------------------------------
+
 function OnEvent (event, arg, family)
 	-- console.log("event = " .. event .. ", arg = " .. arg .. ", family = " .. family)
 
@@ -273,56 +287,39 @@ function OnEvent (event, arg, family)
 	end
 
 	-- PRESSED event
-	local eObj = {
-		isMouse = nil,
-		target = nil,
-		buttons = {},
-		-- other = {},
-		modifier = {},
-	}
-	-- table.forEach(table.createFill(5, 'g'), function (n, i) eObj.mouse[n .. i] = false end)
-	-- table.forEach(table.createFill(12, 'g'), function (n, i) eObj.other[n .. i] = false end)
 
-	if event == "MOUSE_BUTTON_PRESSED" and arg >=1 and arg <= 11 and family == "mouse" then
-		eObj.isMouse = true
-		eObj.target = arg
-		local list = { "lalt", "lctrl", "lshift", "ralt", "rctrl", "rshift" }
-
-		for i = 1, 5 do
-			eObj.buttons[i] = IsMouseButtonPressed(i)
-		end
-
-		for i = 1, #list do
-			eObj.modifier[list[i]] = IsModifierPressed(list[i])
-		end
-
-		if lmf.monitor.mousedown and #lmf.monitor.mousedown then
-			table.forEach(lmf.monitor.mousedown, function (n, i)
-				if n then n(eObj) end
-			end)
-		end
-
-	elseif event == "G_PRESSED" and arg >=1 and arg <= 12 then
-		eObj.isMouse = false
-		eObj.target = arg
-		local list = { "lalt", "lctrl", "lshift", "ralt", "rctrl", "rshift" }
-
-		for i = 1, 5 do
-			eObj.buttons[i] = IsMouseButtonPressed(i)
-		end
-
-		for i = 1, #list do
-			eObj.modifier[list[i]] = IsModifierPressed(list[i])
-		end
-
-		if lmf.monitor.mousedown and #lmf.monitor.mousedown then
-			table.forEach(lmf.monitor.mousedown, function (n, i)
-				if n then n(eObj) end
-			end)
-		end
-
+	if event == "MOUSE_BUTTON_PRESSED" and family == "mouse" then
+		if arg == 2 then arg = 3 elseif arg == 3 then arg = 2 end
+		lmf._mousedown(true, arg)
+	elseif event == "G_PRESSED" then
+		lmf._mousedown(false, arg)
 	end
 
+end
+
+function lmf._mousedown (isMouse, arg)
+	local eObj = {
+		isMouse = isMouse,
+		g = arg,
+		isPressed = {},
+		-- other = {},
+		modifier = {}
+	}
+	local list = { "lalt", "lctrl", "lshift", "ralt", "rctrl", "rshift" }
+
+	for i = 1, 5 do
+		if IsMouseButtonPressed(i) then
+			eObj.isPressed[#eObj.isPressed + 1] = "g" .. i
+		end
+	end
+
+	for i = 1, #list do
+		if IsModifierPressed(list[i]) then
+			eObj.modifier[#eObj.modifier + 1] = list[i]
+		end
+	end
+
+	lmf.emit('mousedown', eObj)
 end
 
 --||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||--
