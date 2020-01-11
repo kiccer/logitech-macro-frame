@@ -410,13 +410,13 @@ EnablePrimaryMouseButtonEvents(true)
 -- Execute when the script is loaded
 lmf.on("load", function ()
 	console.log("hello world")
-	-- console.log(getDate())
 end)
 
 lmf.on('unload', function ()
 	console.clear()
 end)
 
+-- 按住左键连点效果实现范例 (开启大写生效)
 -- local G1 = false
 --
 -- lmf.on("mousedown", function (e)
