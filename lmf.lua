@@ -111,15 +111,28 @@ isLock = IsKeyLockOn
 isPressed = lmf.isPressed
 setDpi = lmf.setDpi
 
+-- 重命名 OnEvent 的 event 参数
+lmf.events = {
+	-- load event
+	{ "PROFILE_ACTIVATED", "load" },
+	{ "PROFILE_DEACTIVATED", "unload" },
+	-- mouse event
+	{ "MOUSE_BUTTON_PRESSED", "mousedown" },
+	{ "MOUSE_BUTTON_RELEASED", "mouseup" },
+	-- G key event
+	{ "G_PRESSED", "gkeydown" },
+	{ "G_RELEASED", "gkeyup" },
+	-- M key event
+	{ "M_PRESSED", "mkeydown" },
+	{ "M_RELEASED", "mkeyup" },
+}
 
 -- 监听动作
 function lmf.on (k, f)
 	local index = nil
-	local list = {
-		'load',
-		'unload',
-		'event',
-	}
+	local list = table.map(lmf.events, function (n, i)
+		return n[2]
+	end)
 
 	if table.some(list, function (n, i)
 		return n == k
@@ -136,7 +149,7 @@ function lmf.on (k, f)
 	return index and {
 		event = k,
 		id = index
-	} or index
+	} or nil
 end
 
 -- 取消监听
@@ -152,6 +165,14 @@ function lmf.emit (k, d)
 		end)
 	end
 end
+
+-- 触发式循环 (危！慎重！此功能尚不完全，请尝试自己实现触发式循环)
+-- function lmf.loop (f)
+-- 	local _loop = lmf.on("mkeydown", function (e)
+-- 		if f() then setM(1) end
+-- 	end)
+-- 	if f() then setM(1) end
+-- end
 
 --[[ tools ]]
 
@@ -326,65 +347,55 @@ function console.log (str)
 end
 
 ----------------------------------------------------------------------------------------------------
+--                                         Default event                                          --
+----------------------------------------------------------------------------------------------------
+
+lmf.on('unload', function ()
+	EnablePrimaryMouseButtonEvents(false)
+end)
+
+----------------------------------------------------------------------------------------------------
 --                                         Entry function                                         --
 ----------------------------------------------------------------------------------------------------
 
 function OnEvent (event, arg, family)
 	-- console.log("event = " .. event .. ", arg = " .. arg .. ", family = " .. family)
 
-	-- Script activated event
-	if event == "PROFILE_ACTIVATED" then
-		if lmf.monitor.load and #lmf.monitor.load then
-			table.forEach(lmf.monitor.load, function (n, i)
-				if n then n() end
-			end)
+	table.forEach(lmf.events, function (n, i)
+		if event == n[1] then
+			lmf._emit(n[2], arg, family)
 		end
-	end
-
-	-- Script deactivated event
-	if event == "PROFILE_DEACTIVATED" then
-		if lmf.monitor.unload and #lmf.monitor.unload then
-			table.forEach(lmf.monitor.unload, function (n, i)
-				if n then n() end
-			end)
-		end
-		console.clear()
-	end
-
-	-- PRESSED event
-
-	if event == "MOUSE_BUTTON_PRESSED" and family == "mouse" then
-		if arg == 2 then arg = 3 elseif arg == 3 then arg = 2 end
-		lmf._event(true, arg)
-	elseif event == "G_PRESSED" then
-		lmf._event(false, arg)
-	end
+	end)
 
 end
 
-function lmf._event (isMouse, arg)
-	local eObj = {
-		isMouse = isMouse,
-		g = arg,
-		pressed = {},
-		-- other = {},
-		modifier = {}
-	}
+function lmf._emit (ename, arg, family)
+	if arg == 2 then arg = 3 elseif arg == 3 then arg = 2 end
 	local list = { "lalt", "lctrl", "lshift", "ralt", "rctrl", "rshift" }
+	local res = {
+		event = ename, -- 触发的事件
+		g = arg, -- 触发事件的 G 键，包括鼠标、键盘、耳机等
+		family = family ~= "" and family or "other", -- 触发事件的设备 (鼠标或其他)
+		pressed = {}, -- 哪些 G 键是按住的状态 (仅支持判断 g1、g2、g3、g4、g5 五个鼠标 G 键)
+		modifier = {}, -- 哪些修饰键是按住的状态 (lalt、lctrl、lshift、ralt、rctrl、rshift)
+		capslock = isLock("capslock"), -- 大写锁定键是否开启
+		numlock = isLock("numlock"), -- 小键盘锁定是否开启
+		scrolllock = isLock("scrolllock"), -- 滚动锁定是否开启
+	}
 
 	for i = 1, 5 do
 		if isPressed(i) then
-			eObj.pressed[#eObj.pressed + 1] = "g" .. i
+			res.pressed[#res.pressed + 1] = "g" .. i
 		end
 	end
 
 	for i = 1, #list do
 		if isPressed(list[i]) then
-			eObj.modifier[#eObj.modifier + 1] = list[i]
+			res.modifier[#res.modifier + 1] = list[i]
 		end
 	end
 
-	lmf.emit('event', eObj)
+	lmf.emit(ename, res)
 end
 
 --||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||--
@@ -394,16 +405,40 @@ end
 --                                                                                                --
 --||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||--
 
--- EnablePrimaryMouseButtonEvents(true)
+EnablePrimaryMouseButtonEvents(true)
 
 -- Execute when the script is loaded
-lmf.on('load', function ()
-	console.log('hello world')
+lmf.on("load", function ()
+	console.log("hello world")
+	-- console.log(getDate())
 end)
 
-lmf.on('event', function (e)
-	console.log(e)
+lmf.on('unload', function ()
+	console.clear()
 end)
+
+-- local G1 = false
+--
+-- lmf.on("mousedown", function (e)
+-- 	-- console.log(e)
+-- 	if e.g == 1 and e.capslock then
+-- 		G1 = true
+-- 		setM(1)
+-- 	end
+-- end)
+--
+-- lmf.on("mkeydown", function (e)
+-- 	if G1 and e.capslock then
+-- 		setM(1)
+-- 		mouseTap(1)
+-- 	end
+-- end)
+--
+-- lmf.on("mouseup", function (e)
+-- 	if e.g == 1 then
+-- 		G1 = false
+-- 	end
+-- end)
 
 -- console.log(lmf)
 
