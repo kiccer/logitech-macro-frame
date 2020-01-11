@@ -46,9 +46,71 @@ userConfig = {
 ----------------------------------------------------------------------------------------------------
 
 lmf = {
-	debug = false,
-	monitor = {} -- 监听器列表
+	debug = true,
+	monitor = {}, -- 监听器列表
 }
+
+-- 重命名 API，整合个别 API 功能
+getM = GetMKeyState
+setM = SetMKeyState
+sleep = Sleep
+logMsg = OutputLogMessage
+lcdMsg = OutputLCDMessage
+debugMsg = OutputDebugMessage
+getTime = GetRunningTime
+getDate = GetDate
+keyDown = PressKey
+keyUp = ReleaseKey
+keyTap = PressAndReleaseKey
+mouseDown = PressMouseButton
+mouseUp = ReleaseMouseButton
+mouseTap = PressAndReleaseMouseButton
+move = MoveMouseRelative
+moveTo = MoveMouseTo
+moveToThis = MoveMouseToVirtual
+wheel = MoveMouseWheel
+getMouse = GetMousePosition
+onMacro = PlayMacro
+offMacro = AbortMacro
+setColor = SetBacklightColor
+setSpeed = SetMouseSpeed
+getSpeed = GetMouseSpeed
+addSpeed = lmf.addSpeed
+isLock = IsKeyLockOn
+isPressed = lmf.isPressed
+setDpi = lmf.setDpi
+
+
+function lmf.isPressed (n)
+	if type(n) == "number" then
+		return IsMouseButtonPressed(n)
+	elseif type(n) == "string" then
+		return IsModifierPressed(n)
+	else
+		if lmf.debug then error("[lmf.isPressed] Wrong parameter data type: " .. tostring(n) .. " is not a \"number\" or \"string\".") end
+	end
+end
+
+function lmf.setDpi (n)
+	if type(n) == "table" then
+		SetMouseDPITable(n, 1)
+	elseif type(n) == "number" then
+		SetMouseDPITableIndex(n)
+	else
+		if lmf.debug then error("[lmf.setDpi] Wrong parameter data type: " .. tostring(n) .. " is not a \"table\" or \"number\".") end
+	end
+end
+
+function lmf.addSpeed (n)
+	if type(n) ~= "number" then
+		if lmf.debug then error("[lmf.addSpeed] Wrong parameter data type: " .. tostring(n) .. " is not a \"number\".") end
+	elseif n > 0 then
+		IncrementMouseSpeed(n)
+	elseif n < 0 then
+		DecrementMouseSpeed(-n)
+	end
+end
+
 
 -- 监听动作
 function lmf.on (k, f)
@@ -56,7 +118,7 @@ function lmf.on (k, f)
 	local list = {
 		'load',
 		'unload',
-		'mousedown',
+		'event',
 	}
 
 	if table.some(list, function (n, i)
@@ -255,7 +317,10 @@ function table.print (val)
 end
 
 -- console
-console = {}
+console = {
+	clear = ClearLog
+}
+
 function console.log (str)
 	OutputLogMessage(table.print(str) .. "\n")
 end
@@ -283,21 +348,21 @@ function OnEvent (event, arg, family)
 				if n then n() end
 			end)
 		end
-		ClearLog()
+		console.clear()
 	end
 
 	-- PRESSED event
 
 	if event == "MOUSE_BUTTON_PRESSED" and family == "mouse" then
 		if arg == 2 then arg = 3 elseif arg == 3 then arg = 2 end
-		lmf._mousedown(true, arg)
+		lmf._event(true, arg)
 	elseif event == "G_PRESSED" then
-		lmf._mousedown(false, arg)
+		lmf._event(false, arg)
 	end
 
 end
 
-function lmf._mousedown (isMouse, arg)
+function lmf._event (isMouse, arg)
 	local eObj = {
 		isMouse = isMouse,
 		g = arg,
@@ -319,7 +384,7 @@ function lmf._mousedown (isMouse, arg)
 		end
 	end
 
-	lmf.emit('mousedown', eObj)
+	lmf.emit('event', eObj)
 end
 
 --||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||--
@@ -329,12 +394,14 @@ end
 --                                                                                                --
 --||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||--
 
+-- EnablePrimaryMouseButtonEvents(true)
+
 -- Execute when the script is loaded
 lmf.on('load', function ()
 	console.log('hello world')
 end)
 
-lmf.on('mousedown', function (e)
+lmf.on('event', function (e)
 	console.log(e)
 end)
 
