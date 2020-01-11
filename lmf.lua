@@ -50,36 +50,6 @@ lmf = {
 	monitor = {}, -- 监听器列表
 }
 
--- 重命名 API，整合个别 API 功能
-getM = GetMKeyState
-setM = SetMKeyState
-sleep = Sleep
-logMsg = OutputLogMessage
-lcdMsg = OutputLCDMessage
-debugMsg = OutputDebugMessage
-getTime = GetRunningTime
-getDate = GetDate
-keyDown = PressKey
-keyUp = ReleaseKey
-keyTap = PressAndReleaseKey
-mouseDown = PressMouseButton
-mouseUp = ReleaseMouseButton
-mouseTap = PressAndReleaseMouseButton
-move = MoveMouseRelative
-moveTo = MoveMouseTo
-moveToThis = MoveMouseToVirtual
-wheel = MoveMouseWheel
-getMouse = GetMousePosition
-onMacro = PlayMacro
-offMacro = AbortMacro
-setColor = SetBacklightColor
-setSpeed = SetMouseSpeed
-getSpeed = GetMouseSpeed
-addSpeed = lmf.addSpeed
-isLock = IsKeyLockOn
-isPressed = lmf.isPressed
-setDpi = lmf.setDpi
-
 
 function lmf.isPressed (n)
 	if type(n) == "number" then
@@ -110,6 +80,36 @@ function lmf.addSpeed (n)
 		DecrementMouseSpeed(-n)
 	end
 end
+
+-- 重命名 API，整合个别 API 功能
+getM = GetMKeyState
+setM = SetMKeyState
+sleep = Sleep
+logMsg = OutputLogMessage
+lcdMsg = OutputLCDMessage
+debugMsg = OutputDebugMessage
+getTime = GetRunningTime
+getDate = GetDate
+keyDown = PressKey
+keyUp = ReleaseKey
+keyTap = PressAndReleaseKey
+mouseDown = PressMouseButton
+mouseUp = ReleaseMouseButton
+mouseTap = PressAndReleaseMouseButton
+move = MoveMouseRelative
+moveTo = MoveMouseTo
+moveToThis = MoveMouseToVirtual
+wheel = MoveMouseWheel
+getMouse = GetMousePosition
+onMacro = PlayMacro
+offMacro = AbortMacro
+setColor = SetBacklightColor
+setSpeed = SetMouseSpeed
+getSpeed = GetMouseSpeed
+addSpeed = lmf.addSpeed
+isLock = IsKeyLockOn
+isPressed = lmf.isPressed
+setDpi = lmf.setDpi
 
 
 -- 监听动作
@@ -322,7 +322,7 @@ console = {
 }
 
 function console.log (str)
-	OutputLogMessage(table.print(str) .. "\n")
+	logMsg(table.print(str) .. "\n")
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -366,20 +366,20 @@ function lmf._event (isMouse, arg)
 	local eObj = {
 		isMouse = isMouse,
 		g = arg,
-		isPressed = {},
+		pressed = {},
 		-- other = {},
 		modifier = {}
 	}
 	local list = { "lalt", "lctrl", "lshift", "ralt", "rctrl", "rshift" }
 
 	for i = 1, 5 do
-		if IsMouseButtonPressed(i) then
-			eObj.isPressed[#eObj.isPressed + 1] = "g" .. i
+		if isPressed(i) then
+			eObj.pressed[#eObj.pressed + 1] = "g" .. i
 		end
 	end
 
 	for i = 1, #list do
-		if IsModifierPressed(list[i]) then
+		if isPressed(list[i]) then
 			eObj.modifier[#eObj.modifier + 1] = list[i]
 		end
 	end
