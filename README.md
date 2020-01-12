@@ -15,13 +15,13 @@
 
 ---
 
+> 项目提炼自 kiccer/[Soldier76](https://github.com/kiccer/Soldier76)
+
 ### 前言
 编写过罗技鼠标宏脚本的开发者都知道，罗技宏的开发过程十分坎坷，且进度缓慢：难以记忆的API、自相矛盾的设计、阉割的语言……
 正是因为这些诸多不足，所以此框架才应运而生。在此框架中，完善了一些原生API的缺陷，甚至将多个API整合成一个，此外还提供了很多非常实用的方法。使用此脚本后，你将获得全新的编写体验。
 
 第一次写罗技宏脚本？没问题！你完全不需要去了解原始的编写方式，使用此框架就够了。
-
-\* *另，作者Lua语言的水平仅有入门水准，如果发现代码中有任何可改进的地方，欢迎提交PR！*
 
 ### 获取项目
 点击右上角的 `Fork` 即可获取本项目。
@@ -79,12 +79,20 @@ end
 ### 参考文档
 * [框架API(基于原生重写/重命名)](./docs/api.md)
 * [扩展方法(table篇)](./docs/table.md)
+* [扩展方法(string篇)](./docs/string.md)
 
 ### 许可声明
-* 本脚本使用 `MIT` 许可，允许商用，允许二次开发后出售。
+* 本脚本使用 **MIT** 许可，允许商用，允许二次开发后出售。
 
 ### 交流群
 * 欢迎加入技术交流QQ群：[![logitech 鼠标宏技术交流](https://github.com/kiccer/Soldier76/raw/master/static/img/group.png)](https://kiccer.github.io/Soldier76/static/join_group.html) ([768483124](https://kiccer.github.io/Soldier76/static/join_group.html))
 
 ### 问题反馈
 * 使用脚本时有任何疑问，或脚本存在不足之处可以在 [`Issues`](https://github.com/kiccer/logitech-macro-frame/issues) 反馈给我
+
+### 谁使用了此框架
+* 暂无...
+
+---
+
+\* *另，作者Lua语言的水平仅有入门水准，如果发现代码中有任何可改进的地方，欢迎提交PR！*

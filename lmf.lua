@@ -50,7 +50,6 @@ lmf = {
 	monitor = {}, -- 监听器列表
 }
 
-
 function lmf.isPressed (n)
 	if type(n) == "number" then
 		return IsMouseButtonPressed(n)
@@ -61,9 +60,9 @@ function lmf.isPressed (n)
 	end
 end
 
-function lmf.setDpi (n)
+function lmf.setDpi (n, i)
 	if type(n) == "table" then
-		SetMouseDPITable(n, 1)
+		SetMouseDPITable(n, i)
 	elseif type(n) == "number" then
 		SetMouseDPITableIndex(n)
 	else
@@ -101,8 +100,8 @@ moveTo = MoveMouseTo
 moveToThis = MoveMouseToVirtual
 wheel = MoveMouseWheel
 getMouse = GetMousePosition
-onMacro = PlayMacro
-offMacro = AbortMacro
+playMacro = PlayMacro
+abortMacro = AbortMacro
 setColor = SetBacklightColor
 setSpeed = SetMouseSpeed
 getSpeed = GetMouseSpeed
@@ -194,6 +193,13 @@ function string.split (str, s)
 	res[index + 1] = string.sub(str, last_i)
 
 	return res
+end
+
+-- join function
+function string.join (t, s)
+	return table.reduce(t, function(n, m)
+		return n .. s .. m
+	end)
 end
 
 -- Javascript Array.prototype.some
