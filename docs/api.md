@@ -30,7 +30,7 @@ API列表:
 * [isLock](#isLock)
 * [isPressed](#isPressed)
 * [setDpi](#setDpi)
-* [附录 A](#附录A)
+* [附录 A](#附录-a)
 
 ### **lmf.on**
 `lmf.on()` 方法用于监听事件。
