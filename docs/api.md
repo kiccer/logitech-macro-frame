@@ -1,7 +1,6 @@
 # 罗技宏框架API文档 | Logitech Macro Frame API Document
 
 API列表:
-* [lmf.on](#lmfon)
 * [getM](#getM)
 * [setM](#setM)
 * [sleep](#sleep)
@@ -32,51 +31,6 @@ API列表:
 * [setDpi](#setDpi)
 * [附录 A](#附录-a)
 
-### **lmf.on**
-`lmf.on()` 方法用于监听事件。
-```Lua
-lmf.on("load", function (e)
-	console.log("hello world")
-end)
-```
-
-这段代码的效果其实就是相当于：
-
-```Lua
-function OnEvent (event, arg, family)
-  if event == "PROFILE_ACTIVATED" then
-    OutputLogMessage("hello world\n")
-  end
-end
-```
-
-`lmf.on` 方法接受两个参数： **eventName** 、 **callback**
-
-可供选择的监听事件(**eventName**)有：
-* `load` - 监听 **脚本加载** 事件
-* `unload` - 监听 **脚本退出** 事件
-* `mousedown` - 监听 **鼠标按下** 事件
-* `mouseup` - 监听 **鼠标弹起** 事件
-* `gkeydown` - 监听 **G键按下** 事件
-* `gkeyup` - 监听 **G键弹起** 事件
-* `mkeydown` - 监听 **M键按下** 事件
-* `mkeyup` - 监听 **M键弹起** 事件
-
-第二个参数(**callback**)是一个回调函数，该函数将会在监听的事件触发时被调用，并获得一个参数(e)，参数内容如下：
-
-```Lua
-{
-     capslock = false, -- 大写锁定键是否开启
-     scrolllock = false, -- 滚动锁定是否开启
-     numlock = true, -- 小键盘锁定是否开启
-     modifier = {}, -- 哪些修饰键是按住的状态 (lalt、lctrl、lshift、ralt、rctrl、rshift)
-     family = "other", -- 触发事件的设备 (鼠标或其他)
-     g = 0, -- 触发事件的 G 键，包括鼠标、键盘、耳机等
-     event = "load", -- 触发的事件
-     pressed = {} -- 哪些 G 键是按住的状态 (仅支持判断 g1、g2、g3、g4、g5 五个鼠标 G 键)
-}
-```
-
 ### getM
 `getM()` 方法返回当前 M Key 状态值。
 
@@ -104,7 +58,6 @@ end
 current_mkey = getM()
 ```
 
-
 ### **setM**
 `setM()` 方法可以设置当前 M keys 激活状态。
 
@@ -117,8 +70,6 @@ current_mkey = getM()
 -- | --
 “kb” | 键盘设备 (G15, G11, G19, etc)
 “lhc”	| 左手用控制器 (G13, etc)
-
-
 
 **返回值**
 

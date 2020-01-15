@@ -45,9 +45,21 @@ userConfig = {
 --                                     Framework built-in code                                    --
 ----------------------------------------------------------------------------------------------------
 
+-- console
+console = {
+	clear = ClearLog
+}
+
+function console.log (...)
+	local arr = {...}
+	for i = 1, #arr do logMsg(table.print(arr[i]) .. "\n") end
+end
+
 lmf = {
 	debug = true,
 	monitor = {}, -- 监听器列表
+	_timers = {}, -- 定时器函数列表
+	_for_protect_time = 20000, -- lmf.for 方法的循环保护，超过此毫秒数时间将强制结束循环，防止死循环卡死。
 }
 
 function lmf.isPressed (n)
@@ -165,13 +177,19 @@ function lmf.emit (k, d)
 	end
 end
 
--- 触发式循环 (危！慎重！此功能尚不完全，请尝试自己实现触发式循环)
--- function lmf.loop (f)
--- 	local _loop = lmf.on("mkeydown", function (e)
--- 		if f() then setM(1) end
--- 	end)
--- 	if f() then setM(1) end
--- end
+-- lmf 提供的 loop 循环方法
+function lmf.loop (func, timestamp)
+	local startTime = getTime()
+	local lastTime = getTime()
+
+	repeat
+		if getTime() - lastTime >= timestamp then
+			lastTime = lastTime + timestamp
+			if not func() then break end
+		end
+		sleep(1)
+	until getTime() - startTime >= lmf._for_protect_time
+end
 
 --[[ tools ]]
 
@@ -200,6 +218,55 @@ function string.join (t, s)
 	return table.reduce(t, function(n, m)
 		return n .. s .. m
 	end)
+end
+
+-- table push
+function table.push (t, v)
+	t[#t + 1] = v
+end
+
+-- table indexOf
+function table.indexOf (t, v)
+	local res = -1
+	for i = 1, #t do
+		if t[i] == v then
+			res = i
+			break
+		end
+	end
+	return res
+end
+
+-- table merge
+function table.merge (...)
+	local res = {}
+	local tabs = {...}
+
+	for i = 1, #tabs do
+		local n = tabs[i]
+		assert(type(n) == "table", "[table.merge] Wrong parameter data type: " .. tostring(n) .. " is not a \"table\".")
+		for k, v in pairs(n) do
+			table._merge(res, k, v)
+		end
+	end
+
+	return res
+end
+
+function table._merge (tab, key, val)
+	if type(val) == "table" then
+		tab[key] = tab[key] ~= nil and tab[key] or {}
+		for k, v in pairs(val) do
+			table._merge(tab[key], k, v)
+		end
+	else
+		tab[key] = val
+	end
+end
+
+-- table cloneDeep
+function table.cloneDeep (t)
+	return type(t) == "table" and table.merge(t) or t
 end
 
 -- Javascript Array.prototype.some
@@ -341,15 +408,6 @@ function table.print (val)
 	res = string.gsub(res, "{%s+}", "{}")
 
 	return res
-end
-
--- console
-console = {
-	clear = ClearLog
-}
-
-function console.log (str)
-	logMsg(table.print(str) .. "\n")
 end
 
 ----------------------------------------------------------------------------------------------------

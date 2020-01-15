@@ -78,6 +78,7 @@ end
 
 ### 参考文档
 * [框架API(基于原生重写/重命名)](./docs/api.md)
+* [罗技宏框架内置方法](./docs/lmf.md)
 * [扩展方法(table篇)](./docs/table.md)
 * [扩展方法(string篇)](./docs/string.md)
 
