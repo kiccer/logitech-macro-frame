@@ -8,6 +8,10 @@
 * [table.forEach](#tableforEach)
 * [table.createFill](#tablecreateFill)
 * [table.print](#tableprint)
+* [table.push](#tablepush)
+* [table.indexOf](#tableindexOf)
+* [table.merge](#tablemerge)
+* [table.cloneDeep](#tablecloneDeep)
 
 ### **table.some**
 `table.some()` 方法判断数组中是否存在符合条件的项。
@@ -112,7 +116,9 @@ local strs = { "LMF", "is", "the", "best", "Logitech", "macro", "framework!" }
 local res2 = table.reduce(strs, function (n, m)
   return n .. " " .. m
 end)
-console.log(res2) -- "LMF is the best Logitech macro framework!"
+console.log(res2)
+
+-- "LMF is the best Logitech macro framework!"
 ```
 
 ### **table.map**
@@ -141,7 +147,9 @@ local list = { 1, 2, 3, 4, 5 }
 local res = table.map(list, function (n, i)
   return n * n
 end)
-console.log(res) -- { 1, 4, 9, 16, 25 }
+console.log(res)
+
+-- { 1, 4, 9, 16, 25 }
 ```
 
 ### **table.forEach**
@@ -168,8 +176,14 @@ console.log(res) -- { 1, 4, 9, 16, 25 }
 local list = { 1, 2, 3, 4, 5 }
 -- 输出 list 数组中的每一项
 table.forEach(list, function (n, i)
-  console.log(n) -- 1 [, 2, 3, 4, 5]
+  console.log(n)
 end)
+
+-- 1
+-- 2
+-- 3
+-- 4
+-- 5
 ```
 
 ### **table.createFill**
@@ -193,7 +207,9 @@ end)
 ```Lua
 -- 创建一个长度是20值为0的数组
 local res = table.createFill(20, 0)
-console.log(res) -- { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+console.log(res)
+
+-- { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 ```
 
 ### **table.print**
@@ -215,5 +231,170 @@ console.log 方法会调用 table.print 方法处理传入的值，并自动在�
 
 ```Lua
 local v = { 1, 2, "", true, false }
-console.log(v) -- { 1, 2, "", true, false }
+console.log(v)
+
+-- { 1, 2, "", true, false }
+```
+
+### **table.push**
+`table.push()` 方法将值添加值数组的最后一项。
+
+**参数列表**
+
+* table - 原始数组。
+* any - 被添加的项。
+
+**返回值**
+
+nil
+
+**备注信息**
+
+该方法会改变原始数组。
+
+**代码示范**
+
+```Lua
+local arr = { 1, 2, 3 }
+table.push(arr, { a = 3 })
+console.log(arr)
+
+-- {
+--      1,
+--      2,
+--      3,
+--      {
+--           a = 3
+--      }
+-- }
+```
+
+### **table.indexOf**
+`table.indexOf()` 方法查询该项在数组中的下标。
+
+**参数列表**
+
+* table - 查询数组。
+* any - 被查询的项。
+
+**返回值**
+
+* number - 下标，不存在时返回 -1
+
+**备注信息**
+
+不存在时返回 -1
+
+**代码示范**
+
+```Lua
+local arr = { 1, 2, 5, 8, 7, 6, 4 }
+console.log(
+	table.indexOf(arr, 5)
+)
+
+-- 3
+```
+
+### **table.merge**
+`table.merge()` 方法将多个 table 合并成一个新的 table。
+
+**参数列表**
+
+* tables - 需要合并的 table，可以传入多个 table。
+
+**返回值**
+
+* table - 合并后的 table
+
+**备注信息**
+
+该方法不会改变原 table，而是返回一个新的 table
+
+**代码示范**
+
+```Lua
+local t = {
+	a = 1,
+	b = 2,
+	d = {
+		da = 1,
+		db = 2
+	},
+	e = { 1, 2, 5, 3, 6, 8, 9, 5, 3 }
+}
+
+local s = {
+	a = 3,
+	c = 3,
+	d = {
+		dc = 3,
+	},
+	e = { 1, 2, 3, 4, 5 }
+}
+
+console.log(
+	table.merge(t, s)
+)
+
+-- {
+--      a = 3,
+--      c = 3,
+--      b = 2,
+--      e = { 1, 2, 3, 4, 5, 8, 9, 5, 3 },
+--      d = {
+--           db = 2,
+--           dc = 3,
+--           da = 1
+--      }
+-- }
+```
+
+### **table.cloneDeep**
+`table.cloneDeep()` 方法用于变量深度拷贝。
+
+**参数列表**
+
+* any - 任意需要拷贝的值。
+
+**返回值**
+
+* any - 返回拷贝后的值。
+
+**备注信息**
+
+修改通过该方法拷贝后获取的值，不会改变原始值。
+
+**代码示范**
+
+```Lua
+local t = {
+	a = 1,
+	b = 2,
+	d = {
+		da = 1,
+		db = 2
+	},
+	e = { 1, 2, 5, 3, 6, 8, 9, 5, 3 }
+}
+
+local e = table.cloneDeep(t)
+e.d = 3
+console.log(e, t)
+
+-- {
+--      a = 1,
+--      d = 3,
+--      e = { 1, 2, 5, 3, 6, 8, 9, 5, 3 },
+--      b = 2
+-- }
+-- {
+--      a = 1,
+--      d = {
+--           db = 2,
+--           da = 1
+--      },
+--      e = { 1, 2, 5, 3, 6, 8, 9, 5, 3 },
+--      b = 2
+-- } 
 ```
