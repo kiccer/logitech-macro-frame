@@ -219,7 +219,7 @@ function table.find (t, f)
 	for i = 1, #t do
 		local n = t[i]
 		if f(n, i) then
-			res = table.cloneDeep(n)
+			res = n
 			break
 		end
 	end
@@ -230,7 +230,7 @@ end
 function table.filter (t, f)
 	local res = {}
 	table.forEach(t, function (n, i)
-		if f(n, i) then table.push(res, table.cloneDeep(n)) end
+		if f(n, i) then table.push(res, n) end
 	end)
 	return res
 end
