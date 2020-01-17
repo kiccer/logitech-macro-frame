@@ -28,10 +28,14 @@
 
 `Fork` 之后进入自己的项目里，然后修改项目名，再使用 `git` 工具拉取到本地，即可上手开发。
 
-开发时请注意编写区域，代码中有三块主要区域： **脚本使用者配置** 、 **框架核心代码** 以及 **脚本编写区**。开发时请看清注释提示。尽量不要改动 **框架核心代码**，**脚本使用者配置** 和 **脚本编写区** 可以自由修改。
+开发时请注意编写区域，代码中有三块主要区域： **脚本使用者配置** 、 **框架核心代码** 以及 **脚本编写区**。
+
+请看清注释提示，尽量不要改动 **框架核心代码**。
+
+**脚本使用者配置** 和 **脚本编写区** 可以自由修改。
 
 ### 开发技巧
-在此脚本中，使用 `lmf.on` 来监听事件：
+在此框架中，使用 `lmf.on` 来监听事件：
 
 ```Lua
 lmf.on("load", function (e)
@@ -77,19 +81,20 @@ end
 ```
 
 ### 参考文档
+* [标准 Lua 5.1 库](./docs/lua5.1.md)
 * [框架API(基于原生重写/重命名)](./docs/api.md)
 * [罗技宏框架内置方法](./docs/lmf.md)
 * [扩展方法(table篇)](./docs/table.md)
 * [扩展方法(string篇)](./docs/string.md)
 
 ### 许可声明
-* 本脚本使用 **MIT** 许可，允许商用，允许二次开发后出售。
+* 本框架脚本使用 **MIT** 许可，允许商用，允许二次开发后出售。
 
 ### 交流群
 * 欢迎加入技术交流QQ群：[![logitech 鼠标宏技术交流](https://github.com/kiccer/Soldier76/raw/master/static/img/group.png)](https://kiccer.github.io/Soldier76/static/join_group.html) ([768483124](https://kiccer.github.io/Soldier76/static/join_group.html))
 
 ### 问题反馈
-* 使用脚本时有任何疑问，或脚本存在不足之处可以在 [`Issues`](https://github.com/kiccer/logitech-macro-frame/issues) 反馈给我
+* 使用框架时有任何疑问，或框架存在不足之处可以在 [`Issues`](https://github.com/kiccer/logitech-macro-frame/issues) 反馈给我
 
 ### 谁使用了此框架
 * 暂无...

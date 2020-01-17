@@ -12,6 +12,8 @@
 * [table.indexOf](#tableindexOf)
 * [table.merge](#tablemerge)
 * [table.cloneDeep](#tablecloneDeep)
+* [table.find](#tablefind)
+* [table.filter](#tablefilter)
 
 ### **table.some**
 `table.some()` 方法判断数组中是否存在符合条件的项。
@@ -396,5 +398,81 @@ console.log(e, t)
 --      },
 --      e = { 1, 2, 5, 3, 6, 8, 9, 5, 3 },
 --      b = 2
+-- }
+```
+
+### **table.find**
+`table.find()` 方法从数组中查找指定的项并返回该项
+
+**参数列表**
+
+* table - 被查找的数组。
+* function - 查找方法。
+
+**返回值**
+
+* any - 返回找到的项。
+
+**备注信息**
+
+返回的为引用值。
+
+**代码示范**
+
+```Lua
+local t = {
+  { a = 1 },
+  { a = 2 }
+}
+
+local _t = table.find(t, function (n, i)
+  return n.a == 1
+end)
+
+console.log(_t)
+
+-- {
+--      a = 1
+-- }
+```
+
+### **table.filter**
+`table.filter()` 方法从数组中筛选符合条件的项
+
+**参数列表**
+
+* table - 被筛选的数组。
+* function - 筛选方法。
+
+**返回值**
+
+* table - 返回筛选后的列表。
+
+**备注信息**
+
+返回的表中每一项皆为引用值。
+
+**代码示范**
+
+```Lua
+local t = {
+  { a = 1 },
+  { a = 2 },
+  { a = 3 }
+}
+
+local _t = table.filter(t, function (n, i)
+  return n.a < 3
+end)
+
+console.log(_t)
+
+-- {
+--      {
+--           a = 1
+--      },
+--      {
+--           a = 2
+--      }
 -- } 
 ```

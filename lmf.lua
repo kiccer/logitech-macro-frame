@@ -213,6 +213,28 @@ function string.split (str, s)
 	return res
 end
 
+-- table find
+function table.find (t, f)
+	local res = nil
+	for i = 1, #t do
+		local n = t[i]
+		if f(n, i) then
+			res = n
+			break
+		end
+	end
+	return res
+end
+
+-- table filter
+function table.filter (t, f)
+	local res = {}
+	table.forEach(t, function (n, i)
+		if f(n, i) then table.push(res, n) end
+	end)
+	return res
+end
+
 -- join function
 function string.join (t, s)
 	return table.reduce(t, function(n, m)
