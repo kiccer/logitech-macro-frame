@@ -429,7 +429,11 @@ local _t = table.find(t, function (n, i)
   return n.a == 1
 end)
 
-console.log(_t) -- { a = 1 }
+console.log(_t)
+
+-- {
+--      a = 1
+-- }
 ```
 
 ### **table.filter**
@@ -464,7 +468,11 @@ end)
 console.log(_t)
 
 -- {
---   { a = 1 },
---   { a = 2 }
--- }
+--      {
+--           a = 1
+--      },
+--      {
+--           a = 2
+--      }
+-- } 
 ```
