@@ -436,8 +436,12 @@ end
 --                                         Default event                                          --
 ----------------------------------------------------------------------------------------------------
 
+lmf.on('load', function ()
+	EnablePrimaryMouseButtonEvents(false) -- 启动时默认关闭，防止受到其他配置中脚本的干扰
+end)
+
 lmf.on('unload', function ()
-	EnablePrimaryMouseButtonEvents(false)
+	EnablePrimaryMouseButtonEvents(false) -- 关闭时自动关闭，防止干扰到其他配置中的
 end)
 
 ----------------------------------------------------------------------------------------------------
