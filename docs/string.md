@@ -29,16 +29,16 @@ console.log(res) -- { "LMF", "is", "the", "best", "Logitech", "macro", "framewor
 ```
 
 ### **string.join**
-`string.join()` 方法通过指定的字符串切割一段字符串，返回切割后的字符串数组。
+`string.join()` 方法通过指定的字符串拼接一组字符串，返回最终拼接后的字符串。
 
 **参数列表**
 
-* string - 原始字符串。
-* string - 切割字符串。
+* table - 待拼接的字符串数组。
+* string - 用于拼接的字符串。
 
 **返回值**
 
-* table - 切割后的字符串数组
+* string - 最终拼接后的字符串
 
 **备注信息**
 
